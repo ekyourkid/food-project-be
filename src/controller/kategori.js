@@ -1,73 +1,70 @@
 const { v4: uuidv4 } = require("uuid");
 const {
-    getUsersModel,
-    getUsersByIdModel,
-    getUsersDetailModel,
-    getUsersDetaiCountlModel,
-    createUsersModel,
-    updateUsersModel,
-    deleteUserModel,
-} = require("../model/usersModel");
+    getKategoriModel,
+    getKategoriByIdModel,
+    getKategoriDetailModel,
+    getKategoriDetaiCountlModel,
+    updateKategoriModel,
+    createKategoriModel,
+    deleteKategoriModel,
+} = require("../model/kategori");
 
-const UsersController = {
-    getUsers: async (req, res, next) => {
+const KategoriController = {
+    getKategori: async (req, res, next) => {
         try {
-            let users = await getUsersModel();
-            console.log("users controller");
-            let result = users.rows;
+            let kategori = await getKategoriModel();
+            console.log("kategori controller");
+            let result = kategori.rows;
             return res.status(200).json({
                 message: `success getUser controller`,
                 data: result,
             });
         } catch (err) {
-            console.log(`users controller error`);
+            console.log(`kategori controller error`);
             console.log(err);
             return res
                 .status(404)
-                .json({ message: `failed GetRecipe, in controller` });
+                .json({ message: `failed get kategori, in controller` });
         }
     },
-    getUsersById: async (req, res, next) => {
+    getKategoriById: async (req, res, next) => {
         try {
             let { id } = req.params;
             if (id === "") {
                 return res.status(404).json({ message: `params id invalid` });
             }
-            let users = await getUsersByIdModel(id);
+            let kategori = await getKategoriByIdModel(id);
             console.log("users controller");
-            let result = users.rows;
+            let result = kategori.rows;
             if (!result.length) {
                 return res
                     .status(404)
-                    .json({ message: `user not found or id ivalid` });
+                    .json({ message: `kategori not found or id ivalid` });
             }
             console.log(result);
             return res.status(200).json({
-                message: `success get user by id controller`,
+                message: `success get kategori by id controller`,
                 data: result[0],
             });
         } catch (err) {
             console.log(err);
             return res
                 .status(404)
-                .json({ message: `failed get user by id, in controller` });
+                .json({ message: `failed get kategori by id, in controller` });
         }
     },
-    getUsersDetail: async (req, res, next) => {
+    getKategoriDetail: async (req, res, next) => {
         try {
             // check searchBy
             let searchBy;
             if (req.query.searchBy === "") {
-                if (
-                    req.query.searchBy === "first_name" ||
-                    req.query.searchBy === "last_name"
-                ) {
+                if (req.query.searchBy === "name") {
                     searchBy = req.query.searchBy;
                 } else {
-                    searchBy = "first_name";
+                    searchBy = "name";
                 }
             } else {
-                searchBy = "first_name";
+                searchBy = "name";
             }
 
             // check sortBy
@@ -103,10 +100,10 @@ const UsersController = {
 
             let data = { searchBy, search, sortBy, sort, limit, offset };
 
-            let users = await getUsersDetailModel(data);
-            let count = await getUsersDetaiCountlModel(data);
+            let users = await getKategoriDetailModel(data);
+            let count = await getKategoriDetaiCountlModel(data);
             let total = count.rowCount;
-            let result = users.rows;
+            let result = kategori.rows;
             let page_next;
             if (req.query.page == Math.round(total / parseInt(limit))) {
                 page_next = 0;
@@ -133,29 +130,17 @@ const UsersController = {
                 .json({ message: "failed get users detail Controller" });
         }
     },
-    createUsers: async (req, res, next) => {
+    createKategori: async (req, res, next) => {
         try {
-            let { first_name, last_name, age, address } = req.body;
-            if (
-                !first_name ||
-                first_name === "" ||
-                !last_name ||
-                last_name === "" ||
-                !age ||
-                age === "" ||
-                !address ||
-                address === ""
-            ) {
+            let { name } = req.body;
+            if (!name || name === "") {
                 return res.json({ code: 404, message: "input invalid" });
             }
             let data = {
                 id: uuidv4(),
-                first_name,
-                last_name,
-                age,
-                address,
+                name,
             };
-            let result = await createUsersModel(data);
+            let result = await createKategoriModel(data);
             if (result.rowCount === 1) {
                 return res
                     .status(201)
@@ -168,10 +153,10 @@ const UsersController = {
             console.log(err);
             return res
                 .status(404)
-                .json({ message: `failed create user in controller` });
+                .json({ message: `failed create kategori in controller` });
         }
     },
-    updateUsers: async (req, res, next) => {
+    updateKategori: async (req, res, next) => {
         try {
             // check param & body
             let { id } = req.params;
@@ -181,58 +166,54 @@ const UsersController = {
             let { first_name, last_name, age, address } = req.body;
 
             // check users
-            let users = await getUsersByIdModel(id);
-            let resultUsers = users.rows;
-            if (!resultUsers.length) {
+            let kategori = await getKategoriByIdModel(id);
+            let resultKategori = kategori.rows;
+            if (!resultKategori.length) {
                 return res
                     .status(404)
-                    .json({ message: `users not found or id invalid` });
+                    .json({ message: `kategori not found or id invalid` });
             }
-            let newUsers = resultUsers[0];
+            let newKategori = resultKategori[0];
             let data = {
                 id,
-                first_name: first_name || newUsers.first_name,
-                last_name: last_name || newUsers.last_name,
-                age: age || newUsers.age,
-                address: address || newUsers.address,
+                name: name || newKategori.name,
             };
-            let result = await updateUsersModel(data);
+            let result = await updateKategoriModel(data);
             if (result.rowCount === 1) {
                 return res
                     .status(201)
-                    .json({ code: 201, message: "success update data" });
+                    .json({ code: 201, message: "success kategori data" });
             }
             return res
                 .status(401)
-                .json({ code: 401, message: "failed update data" });
+                .json({ code: 401, message: "failed kategori data" });
         } catch (err) {
             console.log(err);
             return res
                 .status(404)
-                .json({ message: `failed update user in controller` });
+                .json({ message: `failed update kategori in controller` });
         }
     },
-    deleteUsers: async (req, res, next) => {
+    deleteKategori: async (req, res, next) => {
         try {
             let id = req.params.id;
-            let users = await deleteUserModel(id);
-            let dataUsers = users.rows;
-            if (!dataUsers) {
+            let kategori = await deleteKategoriModel(id);
+            let dataKategori = kategori.rows;
+            if (!dataKategori) {
                 return res
                     .status(404)
-                    .json({ message: `user by id not found or id ivalid` });
+                    .json({ message: `kategori by id not found or id ivalid` });
             }
-            console.log(dataUsers);
             return res
                 .status(200)
-                .json({ message: `delete user by id with ${id} success` });
+                .json({ message: `delete kategori by id with ${id} success` });
         } catch (err) {
             console.log(err);
-            return res
-                .status(404)
-                .json({ message: `delete user by id failed, in controller` });
+            return res.status(404).json({
+                message: `delete kategori by id failed, in controller`,
+            });
         }
     },
 };
 
-module.exports = UsersController;
+module.exports = KategoriController;
