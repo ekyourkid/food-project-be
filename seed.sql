@@ -18,13 +18,16 @@ CREATE TABLE kategori (
 
 INSERT INTO kategori (id, name) VALUES('6890b27f-11c0-43da-975e-2a324d9ebae0b', 'dinner')
 
-SELECT * FROM kategori
+SELECT * FROM users
 
 UPDATE kategori SET update_at=NOW()
 
 INSERT into recipe (id,title,ingredient,photo,created_at) VALUES('1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed', 'egg yolk', 'egg, salt, oil', 'https://placehold.co/600x400', NOW())
 
-SELECT * FROM recipe
+SELECT * FROM users WHERE email = 'eky1579@gmail.com'
+
+ALTER Table users
+ADD username VARCHAR(100)
 
 CREATE table users (
     id VARCHAR UNIQUE,
@@ -40,7 +43,7 @@ ALTER TABLE users
 ADD created_at TIMESTAMP WITH TIME ZONE
 
 ALTER TABLE users
-ADD COLUMN age VARCHAR (20)
+ADD COLUMN password VARCHAR (50)
 
 SET TIMEZONE='Asia/Jakarta'
 
@@ -48,3 +51,5 @@ SET TIMEZONE='Asia/Jakarta'
 
 SELECT * FROM users WHERE first_name ILIKE '%eky%' ORDER BY updated_at DESC LIMIT 3 OFFSET 0;
 SELECT COUNT(*) FROM users WHERE first_name ILIKE '%%';
+
+

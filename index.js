@@ -6,6 +6,7 @@ const cors = require("cors");
 const port = 3000;
 const recipeRouter = require("./src/router/index");
 const userRouter = require("./src/router/index");
+// const jasonwebtoken = require("jsonwebtoken");
 
 const corsOption = {
     origin: "*",
@@ -14,6 +15,7 @@ const corsOption = {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors(corsOption));
 app.use(morgan("combined"));
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.send("hello eky");

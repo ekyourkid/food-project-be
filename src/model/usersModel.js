@@ -65,12 +65,47 @@ const getUsersByIdModel = async (id) => {
     });
 };
 
-const createUsersModel = async (data) => {
-    console.log("model - create users");
-    let { id, first_name, last_name, age, address } = data;
+const registerUsersModel = async (data) => {
+    console.log(`model - register model users`);
+    let { id, username, email, password } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id,first_name,last_name,age,address,created_at ) VALUES('${id}', '${first_name}', '${last_name}', '${age}','${address}', NOW())`,
+            `INSERT INTO users (id, username, email, password) VALUES('${id}','${username}','${email}','${password}')`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
+            }
+        );
+    });
+};
+
+const loginUserModel = async (email) => {
+    console.log(`model - login model users`);
+    return new Promise((resolve, reject) => {
+        Pool.query(
+            `SELECT * FROM users WHERE email='${email}' LIMIT 1`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
+            }
+        );
+    });
+};
+
+const createUsersModel = async (data) => {
+    console.log("model - create users");
+    let { id, username, email, password, address } = data;
+    return new Promise((resolve, reject) => {
+        Pool.query(
+            `INSERT INTO users (id,username,email,password,address,created_at ) VALUES('${id}', '${username}', '${email}', '${password}','${address}', NOW() )`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -85,10 +120,10 @@ const createUsersModel = async (data) => {
 
 const updateUsersModel = async (data) => {
     console.log(`model - update user`);
-    let { id, first_name, last_name, age, address } = data;
+    let { id, username, email, password, address } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `UPDATE users SET updated_at=NOW(), first_name='${first_name}',last_name='${last_name}', age='${age}', address='${address}' WHERE id='${id}'`,
+            `UPDATE users SET updated_at=NOW(), username='${username}',email='${email}', password='${password}', address='${address}' WHERE id='${id}'`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -120,6 +155,8 @@ module.exports = {
     getUsersByIdModel,
     getUsersDetailModel,
     getUsersDetaiCountlModel,
+    registerUsersModel,
+    loginUserModel,
     createUsersModel,
     updateUsersModel,
     deleteUserModel,

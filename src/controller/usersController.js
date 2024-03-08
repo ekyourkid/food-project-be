@@ -1,12 +1,16 @@
 const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const {
     getUsersModel,
     getUsersByIdModel,
     getUsersDetailModel,
     getUsersDetaiCountlModel,
+    registerUsersModel,
     createUsersModel,
     updateUsersModel,
     deleteUserModel,
+    loginUserModel,
 } = require("../model/usersModel");
 
 const UsersController = {
@@ -34,14 +38,12 @@ const UsersController = {
                 return res.status(404).json({ message: `params id invalid` });
             }
             let users = await getUsersByIdModel(id);
-            console.log("users controller");
             let result = users.rows;
             if (!result.length) {
                 return res
                     .status(404)
                     .json({ message: `user not found or id ivalid` });
             }
-            console.log(result);
             return res.status(200).json({
                 message: `success get user by id controller`,
                 data: result[0],
@@ -59,15 +61,15 @@ const UsersController = {
             let searchBy;
             if (req.query.searchBy === "") {
                 if (
-                    req.query.searchBy === "first_name" ||
-                    req.query.searchBy === "last_name"
+                    req.query.searchBy === "username" ||
+                    req.query.searchBy === "email"
                 ) {
                     searchBy = req.query.searchBy;
                 } else {
-                    searchBy = "first_name";
+                    searchBy = "username";
                 }
             } else {
-                searchBy = "first_name";
+                searchBy = "username";
             }
 
             // check sortBy
@@ -133,16 +135,98 @@ const UsersController = {
                 .json({ message: "failed get users detail Controller" });
         }
     },
+    registerUsers: async (req, res, next) => {
+        try {
+            let { username, email, password } = req.body;
+            let hashedPassword = await bcrypt.hash(password, 10);
+            if (
+                !username ||
+                username === "" ||
+                !email ||
+                email === "" ||
+                !password ||
+                password === ""
+            ) {
+                return res.json({ code: 404, message: "input invalid" });
+            }
+            let data = {
+                id: uuidv4(),
+                username,
+                email,
+                password: hashedPassword,
+            };
+            let result = await registerUsersModel(data);
+            if (result.rowCount === 1) {
+                return res
+                    .status(201)
+                    .json({ code: 201, message: "success input data" });
+            }
+            return res
+                .status(401)
+                .json({ code: 401, message: `failed input data` });
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(404)
+                .json({ message: `failed regist user in controller` });
+        }
+    },
+    loginUsers: async (req, res, next) => {
+        try {
+            let { email, password } = req.body;
+            if (email === "" || email !== email) {
+                return res.status(404).json({ message: "email is empty" });
+            }
+            let userData = await loginUserModel(email);
+            let result = userData.rows;
+
+            if (!result.length) {
+                return res.status(404).json({ message: `user not found` });
+            }
+
+            const userDataFromDB = result[0];
+            if (!userDataFromDB.password) {
+                return res.status(404).json({ message: `password not set` });
+            }
+
+            let isPasswordValid = await bcrypt.compare(
+                password,
+                userDataFromDB.password
+            );
+
+            if (isPasswordValid) {
+                const token = jwt.sign(
+                    {
+                        id: userDataFromDB.id,
+                        username: userDataFromDB.username,
+                        address: userDataFromDB.address,
+                    },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "1d" }
+                );
+                return res.status(200).json({
+                    access_token: token,
+                });
+            } else {
+                return res.status(403).json({ message: "Wrong Password" });
+            }
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(404)
+                .json({ message: `failed login user in controller` });
+        }
+    },
     createUsers: async (req, res, next) => {
         try {
-            let { first_name, last_name, age, address } = req.body;
+            let { username, email, password, address } = req.body;
             if (
-                !first_name ||
-                first_name === "" ||
-                !last_name ||
-                last_name === "" ||
-                !age ||
-                age === "" ||
+                !username ||
+                username === "" ||
+                !email ||
+                email === "" ||
+                !password ||
+                password === "" ||
                 !address ||
                 address === ""
             ) {
@@ -150,9 +234,9 @@ const UsersController = {
             }
             let data = {
                 id: uuidv4(),
-                first_name,
-                last_name,
-                age,
+                username,
+                email,
+                password,
                 address,
             };
             let result = await createUsersModel(data);
@@ -178,7 +262,7 @@ const UsersController = {
             if (id === "") {
                 return res.status(404).json({ message: `params invalid` });
             }
-            let { first_name, last_name, age, address } = req.body;
+            let { username, email, password, address } = req.body;
 
             // check users
             let users = await getUsersByIdModel(id);
@@ -191,9 +275,9 @@ const UsersController = {
             let newUsers = resultUsers[0];
             let data = {
                 id,
-                first_name: first_name || newUsers.first_name,
-                last_name: last_name || newUsers.last_name,
-                age: age || newUsers.age,
+                username: username || newUsers.username,
+                email: email || newUsers.email,
+                password: password || newUsers.password,
                 address: address || newUsers.address,
             };
             let result = await updateUsersModel(data);
