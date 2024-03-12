@@ -52,4 +52,22 @@ SET TIMEZONE='Asia/Jakarta'
 SELECT * FROM users WHERE first_name ILIKE '%eky%' ORDER BY updated_at DESC LIMIT 3 OFFSET 0;
 SELECT COUNT(*) FROM users WHERE first_name ILIKE '%%';
 
+CREATE TABLE category(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE,
+    update_at TIMESTAMP WITH TIME ZONE
+)
 
+SELECT * FROM recipe
+
+ALTER TABLE recipe
+ADD COLUMN users_id VARCHAR
+
+ALTER TABLE recipe
+ADD COLUMN category_id INTEGER
+
+
+INSERT INTO recipe (id,title,ingredient,photo,created_at,users_id,category_id) VALUES ('d40e83d5-988f-4100-8af9-e0cd0eb3d991','juice melon','egg, salt, oil','https://placehold.co/600x400',NOW(),'d40e83d5-988f-4100-8af9-e0cd0eb3d991',1)
+
+DELETE FROM recipe WHERE users_id='d40e83d5-988f-4100-8af9-e0cd0eb3d991'

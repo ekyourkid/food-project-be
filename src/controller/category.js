@@ -1,30 +1,19 @@
-const { v4: uuidv4 } = require("uuid");
-const {
-    getKategoriModel,
-    getKategoriByIdModel,
-    getKategoriDetailModel,
-    getKategoriDetaiCountlModel,
-    updateKategoriModel,
-    createKategoriModel,
-    deleteKategoriModel,
-} = require("../model/kategori");
+const { getCategoryModel, createCategoryModel } = require("../model/category");
 
-const KategoriController = {
-    getKategori: async (req, res, next) => {
+const CategoryController = {
+    getCategory: async (req, res, next) => {
         try {
-            let kategori = await getKategoriModel();
-            console.log("kategori controller");
+            let kategori = await getCategoryModel();
             let result = kategori.rows;
             return res.status(200).json({
-                message: `success getUser controller`,
+                message: `Success get category controller`,
                 data: result,
             });
         } catch (err) {
-            console.log(`kategori controller error`);
             console.log(err);
             return res
                 .status(404)
-                .json({ message: `failed get kategori, in controller` });
+                .json({ message: `Failed get category, in controller` });
         }
     },
     getKategoriById: async (req, res, next) => {
@@ -130,17 +119,24 @@ const KategoriController = {
                 .json({ message: "failed get users detail Controller" });
         }
     },
-    createKategori: async (req, res, next) => {
+    createCategory: async (req, res, next) => {
         try {
+            let { id } = req.params;
             let { name } = req.body;
             if (!name || name === "") {
                 return res.json({ code: 404, message: "input invalid" });
             }
+            if (!id || id === 0) {
+                return res.json({ code: 404, message: "input invalid" });
+            } else if (id) {
+                id + 1;
+            }
+
             let data = {
-                id: uuidv4(),
+                id,
                 name,
             };
-            let result = await createKategoriModel(data);
+            let result = await createCategoryModel(data);
             if (result.rowCount === 1) {
                 return res
                     .status(201)
@@ -216,4 +212,4 @@ const KategoriController = {
     },
 };
 
-module.exports = KategoriController;
+module.exports = CategoryController;

@@ -1,9 +1,9 @@
 const Pool = require("../config/db");
 
-const getKategoriModel = async () => {
+const getCategoryModel = async () => {
     console.log("model - get kategori model");
     return new Promise((resolve, reject) =>
-        Pool.query(`SELECT * FROM kategori`, (err, res) => {
+        Pool.query(`SELECT * FROM category`, (err, res) => {
             if (!err) {
                 return resolve(res);
             } else {
@@ -65,12 +65,12 @@ const getKategoriDetaiCountlModel = async (data) => {
     });
 };
 
-const createKategoriModel = async (data) => {
-    console.log("model - create kategori");
+const createCategoryModel = async (data) => {
+    console.log("model - create category");
     let { id, name } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO kategori (id,name ) VALUES('${id}', '${name}', NOW())`,
+            `INSERT INTO category (id,name,created_at ) VALUES('${id}', '${name}', NOW())`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -115,11 +115,6 @@ const deleteKategoriModel = async (id) => {
     });
 };
 module.exports = {
-    getKategoriModel,
-    getKategoriByIdModel,
-    getKategoriDetailModel,
-    getKategoriDetaiCountlModel,
-    createKategoriModel,
-    updateKategoriModel,
-    deleteKategoriModel,
+    getCategoryModel,
+    createCategoryModel,
 };

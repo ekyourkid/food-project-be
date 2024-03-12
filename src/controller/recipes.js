@@ -4,6 +4,7 @@ const {
     getRecipeDetailCountModel,
     getRecipeModel,
     getRecipeByIdModel,
+    getRecipeByAuthorModel,
     createRecipeModel,
     updateRecipeModel,
     deleteRecipeModel,
@@ -129,20 +130,60 @@ const RecipesController = {
                 .json({ message: "failed getRecipeById Controller" });
         }
     },
+    getRecipeByAuthor: async (req, res, next) => {
+        try {
+            let { id } = req.params;
+            if (id === "") {
+                return res.status(404).json({ message: "params id invalid" });
+            }
+            let recipes = await getRecipeByAuthorModel(id);
+            let result = recipes.rows;
+            if (!result.length) {
+                return res
+                    .status(404)
+                    .json({ message: "recipe not found or id invalid" });
+            }
+            console.log(result);
+            return res
+                .status(200)
+                .json({ message: "success getRecipeById", data: result[0] });
+        } catch (err) {
+            console.log("getRecipeById error");
+            console.log(err);
+            return res
+                .status(404)
+                .json({ message: "failed getRecipeById Controller" });
+        }
+    },
     InputRecipe: async (req, res, next) => {
         try {
-            let { title, ingredient, photo } = req.body;
+            let { title, ingredient, photo, category_id } = req.body;
+            if (!req.payload) {
+                return res.json({
+                    code: 404,
+                    message: "server need token, please login",
+                });
+            }
             if (
                 !title ||
                 title === "" ||
                 !ingredient ||
                 ingredient === "" ||
                 !photo ||
-                photo === ""
+                photo === "" ||
+                !category_id
             ) {
                 return res.json({ code: 404, message: "input invalid" });
             }
-            let data = { id: uuidv4(), title, ingredient, photo };
+            let data = {
+                id: uuidv4(),
+                title,
+                ingredient,
+                photo,
+                users_id: req.payload.id,
+                category_id,
+            };
+            console.log(data.users_id, "ini users id");
             let result = await createRecipeModel(data);
             if (result.rowCount === 1) {
                 return res
@@ -162,12 +203,19 @@ const RecipesController = {
     },
     PutRecipe: async (req, res, next) => {
         try {
+            // chceck token authorization
+            if (!req.payload) {
+                return res.json({
+                    code: 404,
+                    message: "server need token, please login",
+                });
+            }
             // check params & body
             let { id } = req.params;
             if (id === "") {
                 return res.status(404).json({ message: "params id invalid" });
             }
-            let { title, ingredient, photo } = req.body;
+            let { title, ingredient, photo, category_id } = req.body;
             // check recipe
             let recipes = await getRecipeByIdModel(id);
             let resultRecipe = recipes.rows;
@@ -177,11 +225,17 @@ const RecipesController = {
                     .json({ message: "recipe not found or id invalid" });
             }
             let recipe = resultRecipe[0];
+            console.log(recipe.users_id, "ini recipe");
+            console.log(req.payload.id, "ini payload");
+            if (req.payload.id !== recipe.users_id) {
+                return res.status(404).json({ message: "recipe is not yours" });
+            }
             let data = {
                 id,
                 title: title || recipe.title,
                 ingredient: ingredient || recipe.ingredient,
                 photo: photo || recipe.photo,
+                category_id: category_id || recipe.category_id,
             };
 
             let result = await updateRecipeModel(data);
@@ -194,7 +248,6 @@ const RecipesController = {
                 .status(401)
                 .json({ code: 401, message: "failed update data" });
         } catch (err) {
-            console.log("InputRecipe error");
             console.log(err);
             return res
                 .status(404)
@@ -203,15 +256,33 @@ const RecipesController = {
     },
     deleteRecipe: async (req, res, next) => {
         try {
+            if (!req.payload) {
+                return res.json({
+                    code: 400,
+                    message: "server need token, please login",
+                });
+            }
+
             let id = req.params.id;
-            let users = await deleteRecipeModel(id);
-            let dataUsers = users.rows;
-            if (!dataUsers) {
+            let getRecipe = await getRecipeByIdModel(id);
+
+            if (!getRecipe?.rows?.length) {
                 return res
                     .status(404)
-                    .json({ message: `recipe by id not found or id ivalid` });
+                    .json({ status: 404, message: "Recept not found" });
             }
-            console.log(dataUsers);
+
+            const recipe = getRecipe.rows[0];
+            console.log(recipe.users_id, "ini recipe");
+            console.log(req.payload.id, "ini payload");
+            if (req.payload.id !== recipe?.users_id) {
+                return res.status(401).json({
+                    status: 401,
+                    message: "Unauthorized! recipe is not yours",
+                });
+            }
+
+            await deleteRecipeModel(id);
             return res
                 .status(200)
                 .json({ message: `delete recipe by id with ${id} success` });

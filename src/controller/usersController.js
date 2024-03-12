@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { authentification } = require("../middleware/auth");
 const {
     getUsersModel,
     getUsersByIdModel,
@@ -204,7 +205,9 @@ const UsersController = {
                     process.env.JWT_SECRET,
                     { expiresIn: "1d" }
                 );
-                return res.status(200).json({
+                return res.status(201).json({
+                    status: 201,
+                    message: "login success",
                     access_token: token,
                 });
             } else {

@@ -47,6 +47,23 @@ const getRecipeModel = async () => {
         })
     );
 };
+const getRecipeByAuthorModel = async (id) => {
+    console.log("model - getRecipeByIdModel");
+    return new Promise((resolve, reject) =>
+        Pool.query(
+            `SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}'`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
+            }
+        )
+    );
+};
+
 const getRecipeByIdModel = async (id) => {
     console.log("model - getRecipeByIdModel");
     return new Promise((resolve, reject) =>
@@ -63,11 +80,11 @@ const getRecipeByIdModel = async (id) => {
 
 const createRecipeModel = async (data) => {
     console.log("model - createRecipe");
-    let { id, title, ingredient, photo } = data;
+    let { id, title, ingredient, photo, users_id, category_id } = data;
     console.log(data);
     return new Promise((resolve, reject) =>
         Pool.query(
-            `INSERT INTO recipe (id,title,ingredient,photo,created_at) VALUES ('${id}','${title}','${ingredient}','${photo}',NOW());`,
+            `INSERT INTO recipe (id,title,ingredient,photo,created_at,users_id,category_id) VALUES ('${id}','${title}','${ingredient}','${photo}',NOW(),'${users_id}',${category_id});`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -82,11 +99,11 @@ const createRecipeModel = async (data) => {
 
 const updateRecipeModel = async (data) => {
     console.log("model - updateRecipe");
-    let { id, title, ingredient, photo } = data;
+    let { id, title, ingredient, photo, category_id } = data;
     console.log(data);
     return new Promise((resolve, reject) =>
         Pool.query(
-            `UPDATE recipe SET updated_at=NOW(), title='${title}', ingredient='${ingredient}', photo='${photo}' WHERE id='${id}'`,
+            `UPDATE recipe SET updated_at=NOW(), title='${title}', ingredient='${ingredient}', photo='${photo}', category_id=${category_id} WHERE id='${id}'`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -116,6 +133,7 @@ const deleteRecipeModel = async (id) => {
 module.exports = {
     getRecipeModel,
     getRecipeByIdModel,
+    getRecipeByAuthorModel,
     createRecipeModel,
     updateRecipeModel,
     getRecipeDetailModel,
