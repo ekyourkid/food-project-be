@@ -10,6 +10,8 @@ const {
     deleteRecipeModel,
 } = require("../model/recipes");
 
+const cloudinary = require("../config/photo");
+
 const RecipesController = {
     getRecipeDetail: async (req, res, next) => {
         try {
@@ -164,26 +166,55 @@ const RecipesController = {
                     message: "server need token, please login",
                 });
             }
+
             if (
                 !title ||
                 title === "" ||
                 !ingredient ||
                 ingredient === "" ||
-                !photo ||
-                photo === "" ||
                 !category_id
             ) {
                 return res.json({ code: 404, message: "input invalid" });
             }
+
+            // upload photo
+            console.log("photo");
+            console.log(req.file);
+            if (!req.file) {
+                return res.json({
+                    code: 404,
+                    message: "photo required",
+                });
+            }
+
+            if (!req.isFileValid) {
+                return res.json({
+                    code: 404,
+                    message: req.isFileValidMessage,
+                });
+            }
+
+            const imageUpload = await cloudinary.uploader.upload(
+                req.file.path,
+                {
+                    folder: "recipe assets",
+                }
+            );
+            console.log("cloudinary");
+            console.log(imageUpload);
+
+            if (!imageUpload) {
+                return res.json({ code: 404, message: "Upload photo failed" });
+            }
+
             let data = {
                 id: uuidv4(),
                 title,
                 ingredient,
-                photo,
+                photo: imageUpload.secure_url,
                 users_id: req.payload.id,
                 category_id,
             };
-            console.log(data.users_id, "ini users id");
             let result = await createRecipeModel(data);
             if (result.rowCount === 1) {
                 return res
@@ -215,7 +246,7 @@ const RecipesController = {
             if (id === "") {
                 return res.status(404).json({ message: "params id invalid" });
             }
-            let { title, ingredient, photo, category_id } = req.body;
+            let { title, ingredient, category_id } = req.body;
             // check recipe
             let recipes = await getRecipeByIdModel(id);
             let resultRecipe = recipes.rows;
@@ -225,8 +256,6 @@ const RecipesController = {
                     .json({ message: "recipe not found or id invalid" });
             }
             let recipe = resultRecipe[0];
-            console.log(recipe.users_id, "ini recipe");
-            console.log(req.payload.id, "ini payload");
             if (req.payload.id !== recipe.users_id) {
                 return res.status(404).json({ message: "recipe is not yours" });
             }
@@ -234,16 +263,52 @@ const RecipesController = {
                 id,
                 title: title || recipe.title,
                 ingredient: ingredient || recipe.ingredient,
-                photo: photo || recipe.photo,
                 category_id: category_id || recipe.category_id,
             };
 
-            let result = await updateRecipeModel(data);
-            if (result.rowCount === 1) {
-                return res
-                    .status(201)
-                    .json({ code: 201, message: "success update data" });
+            console.log("photo");
+            console.log(req.file);
+            if (!req.file) {
+                // update without photo
+                data.photo = recipe.photo;
+                let result = await updateRecipeModel(data);
+                if (result.rowCount === 1) {
+                    return res
+                        .status(201)
+                        .json({ code: 201, message: "success update data" });
+                }
+            } else if (req.file) {
+                // update with photo
+                if (!req.isFileValid) {
+                    return res.json({
+                        code: 404,
+                        message: req.isFileValidMessage,
+                    });
+                }
+                const imageUpload = await cloudinary.uploader.upload(
+                    req.file.path,
+                    {
+                        folder: "recipe assets",
+                    }
+                );
+                console.log("cloudinary");
+                console.log(imageUpload);
+
+                if (!imageUpload) {
+                    return res.json({
+                        code: 404,
+                        message: "Upload photo failed",
+                    });
+                }
+                data.photo = imageUpload.secure_url;
+                let result = await updateRecipeModel(data);
+                if (result.rowCount === 1) {
+                    return res
+                        .status(201)
+                        .json({ code: 201, message: "success update data" });
+                }
             }
+
             return res
                 .status(401)
                 .json({ code: 401, message: "failed update data" });

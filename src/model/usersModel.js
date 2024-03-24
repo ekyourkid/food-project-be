@@ -67,10 +67,10 @@ const getUsersByIdModel = async (id) => {
 
 const registerUsersModel = async (data) => {
     console.log(`model - register model users`);
-    let { id, username, email, password } = data;
+    let { id, username, email, password, address } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id, username, email, password) VALUES('${id}','${username}','${email}','${password}')`,
+            `INSERT INTO users (id, username, email, password, address, created_at) VALUES('${id}','${username}','${email}','${password}','${address}',NOW())`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -100,23 +100,23 @@ const loginUserModel = async (email) => {
     });
 };
 
-const createUsersModel = async (data) => {
-    console.log("model - create users");
-    let { id, username, email, password, address } = data;
-    return new Promise((resolve, reject) => {
-        Pool.query(
-            `INSERT INTO users (id,username,email,password,address,created_at ) VALUES('${id}', '${username}', '${email}', '${password}','${address}', NOW() )`,
-            (err, res) => {
-                if (!err) {
-                    return resolve(res);
-                } else {
-                    console.log(`error db -`, err);
-                    reject(err);
-                }
-            }
-        );
-    });
-};
+// const createUsersModel = async (data) => {
+//     console.log("model - create users");
+//     let { id, username, email, password, address } = data;
+//     return new Promise((resolve, reject) => {
+//         Pool.query(
+//             `INSERT INTO users (id,username,email,password,address,created_at ) VALUES('${id}', '${username}', '${email}', '${password}','${address}', NOW() )`,
+//             (err, res) => {
+//                 if (!err) {
+//                     return resolve(res);
+//                 } else {
+//                     console.log(`error db -`, err);
+//                     reject(err);
+//                 }
+//             }
+//         );
+//     });
+// };
 
 const updateUsersModel = async (data) => {
     console.log(`model - update user`);
@@ -157,7 +157,6 @@ module.exports = {
     getUsersDetaiCountlModel,
     registerUsersModel,
     loginUserModel,
-    createUsersModel,
     updateUsersModel,
     deleteUserModel,
 };

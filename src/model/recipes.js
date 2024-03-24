@@ -2,7 +2,6 @@ const Pool = require("../config/db");
 
 const getRecipeDetailModel = async (data) => {
     let { searchBy, search, sortBy, sort, limit, offset } = data;
-    console.log("model - getRecipeDetailModel");
     return new Promise((resolve, reject) =>
         Pool.query(
             `SELECT * FROM recipe WHERE ${searchBy} ILIKE '%${search}%' ORDER BY ${sortBy} ${sort} LIMIT ${limit} OFFSET ${offset}`,
@@ -19,7 +18,6 @@ const getRecipeDetailModel = async (data) => {
 };
 const getRecipeDetailCountModel = async (data) => {
     let { searchBy, search } = data;
-    console.log("model - getRecipeDetailCountModel");
     return new Promise((resolve, reject) =>
         Pool.query(
             `SELECT * FROM recipe WHERE ${searchBy} ILIKE '%${search}%'`,
@@ -35,7 +33,6 @@ const getRecipeDetailCountModel = async (data) => {
     );
 };
 const getRecipeModel = async () => {
-    console.log("model - getrecipeModel");
     return new Promise((resolve, reject) =>
         Pool.query(`SELECT * FROM recipe`, (err, res) => {
             if (!err) {
@@ -48,7 +45,6 @@ const getRecipeModel = async () => {
     );
 };
 const getRecipeByAuthorModel = async (id) => {
-    console.log("model - getRecipeByIdModel");
     return new Promise((resolve, reject) =>
         Pool.query(
             `SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}'`,
@@ -65,7 +61,6 @@ const getRecipeByAuthorModel = async (id) => {
 };
 
 const getRecipeByIdModel = async (id) => {
-    console.log("model - getRecipeByIdModel");
     return new Promise((resolve, reject) =>
         Pool.query(`SELECT * FROM recipe WHERE id='${id}'`, (err, res) => {
             if (!err) {
@@ -79,7 +74,6 @@ const getRecipeByIdModel = async (id) => {
 };
 
 const createRecipeModel = async (data) => {
-    console.log("model - createRecipe");
     let { id, title, ingredient, photo, users_id, category_id } = data;
     console.log(data);
     return new Promise((resolve, reject) =>
@@ -98,7 +92,6 @@ const createRecipeModel = async (data) => {
 };
 
 const updateRecipeModel = async (data) => {
-    console.log("model - updateRecipe");
     let { id, title, ingredient, photo, category_id } = data;
     console.log(data);
     return new Promise((resolve, reject) =>
@@ -117,7 +110,6 @@ const updateRecipeModel = async (data) => {
 };
 
 const deleteRecipeModel = async (id) => {
-    console.log(`model - delete id recipe`);
     return new Promise((resolve, reject) => {
         Pool.query(`DELETE FROM recipe WHERE id='${id}'`, (err, res) => {
             if (!err) {

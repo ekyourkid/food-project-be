@@ -71,3 +71,7 @@ ADD COLUMN category_id INTEGER
 INSERT INTO recipe (id,title,ingredient,photo,created_at,users_id,category_id) VALUES ('d40e83d5-988f-4100-8af9-e0cd0eb3d991','juice melon','egg, salt, oil','https://placehold.co/600x400',NOW(),'d40e83d5-988f-4100-8af9-e0cd0eb3d991',1)
 
 DELETE FROM recipe WHERE users_id='d40e83d5-988f-4100-8af9-e0cd0eb3d991'
+
+INSERT INTO users (id, username, email, password, created_at, address) VALUES('1','user test','test@gmail.com','123123', NOW(),'jalan jalan')
+
+SELECT * FROM recipe

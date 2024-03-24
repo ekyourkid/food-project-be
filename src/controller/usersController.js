@@ -8,7 +8,6 @@ const {
     getUsersDetailModel,
     getUsersDetaiCountlModel,
     registerUsersModel,
-    createUsersModel,
     updateUsersModel,
     deleteUserModel,
     loginUserModel,
@@ -138,7 +137,7 @@ const UsersController = {
     },
     registerUsers: async (req, res, next) => {
         try {
-            let { username, email, password } = req.body;
+            let { username, email, password, address } = req.body;
             let hashedPassword = await bcrypt.hash(password, 10);
             if (
                 !username ||
@@ -146,7 +145,9 @@ const UsersController = {
                 !email ||
                 email === "" ||
                 !password ||
-                password === ""
+                password === "" ||
+                !address ||
+                address === ""
             ) {
                 return res.json({ code: 404, message: "input invalid" });
             }
@@ -155,6 +156,7 @@ const UsersController = {
                 username,
                 email,
                 password: hashedPassword,
+                address,
             };
             let result = await registerUsersModel(data);
             if (result.rowCount === 1) {
@@ -220,44 +222,44 @@ const UsersController = {
                 .json({ message: `failed login user in controller` });
         }
     },
-    createUsers: async (req, res, next) => {
-        try {
-            let { username, email, password, address } = req.body;
-            if (
-                !username ||
-                username === "" ||
-                !email ||
-                email === "" ||
-                !password ||
-                password === "" ||
-                !address ||
-                address === ""
-            ) {
-                return res.json({ code: 404, message: "input invalid" });
-            }
-            let data = {
-                id: uuidv4(),
-                username,
-                email,
-                password,
-                address,
-            };
-            let result = await createUsersModel(data);
-            if (result.rowCount === 1) {
-                return res
-                    .status(201)
-                    .json({ code: 201, message: "success input data" });
-            }
-            return res
-                .status(401)
-                .json({ code: 401, message: `failed input data` });
-        } catch (err) {
-            console.log(err);
-            return res
-                .status(404)
-                .json({ message: `failed create user in controller` });
-        }
-    },
+    // createUsers: async (req, res, next) => {
+    //     try {
+    //         let { username, email, password, address } = req.body;
+    //         if (
+    //             !username ||
+    //             username === "" ||
+    //             !email ||
+    //             email === "" ||
+    //             !password ||
+    //             password === "" ||
+    //             !address ||
+    //             address === ""
+    //         ) {
+    //             return res.json({ code: 404, message: "input invalid" });
+    //         }
+    //         let data = {
+    //             id: uuidv4(),
+    //             username,
+    //             email,
+    //             password,
+    //             address,
+    //         };
+    //         let result = await createUsersModel(data);
+    //         if (result.rowCount === 1) {
+    //             return res
+    //                 .status(201)
+    //                 .json({ code: 201, message: "success input data" });
+    //         }
+    //         return res
+    //             .status(401)
+    //             .json({ code: 401, message: `failed input data` });
+    //     } catch (err) {
+    //         console.log(err);
+    //         return res
+    //             .status(404)
+    //             .json({ message: `failed create user in controller` });
+    //     }
+    // },
     updateUsers: async (req, res, next) => {
         try {
             // check param & body
