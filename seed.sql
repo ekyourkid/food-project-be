@@ -27,7 +27,7 @@ INSERT into recipe (id,title,ingredient,photo,created_at) VALUES('1b9d6bcd-bbfd-
 SELECT * FROM users WHERE email = 'eky1579@gmail.com'
 
 ALTER Table users
-ADD username VARCHAR(100)
+ADD photo_profile VARCHAR
 
 CREATE table users (
     id VARCHAR UNIQUE,
@@ -59,7 +59,7 @@ CREATE TABLE category(
     update_at TIMESTAMP WITH TIME ZONE
 )
 
-SELECT * FROM recipe
+SELECT * FROM users
 
 ALTER TABLE recipe
 ADD COLUMN users_id VARCHAR
@@ -75,3 +75,5 @@ DELETE FROM recipe WHERE users_id='d40e83d5-988f-4100-8af9-e0cd0eb3d991'
 INSERT INTO users (id, username, email, password, created_at, address) VALUES('1','user test','test@gmail.com','123123', NOW(),'jalan jalan')
 
 SELECT * FROM recipe
+
+

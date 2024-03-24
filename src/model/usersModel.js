@@ -67,10 +67,10 @@ const getUsersByIdModel = async (id) => {
 
 const registerUsersModel = async (data) => {
     console.log(`model - register model users`);
-    let { id, username, email, password, address } = data;
+    let { id, username, email, password, address, photo_profile } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id, username, email, password, address, created_at) VALUES('${id}','${username}','${email}','${password}','${address}',NOW())`,
+            `INSERT INTO users (id, username, email, password, address, created_at, photo_profile) VALUES('${id}','${username}','${email}','${password}','${address}',NOW(),'${photo_profile}')`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -100,30 +100,12 @@ const loginUserModel = async (email) => {
     });
 };
 
-// const createUsersModel = async (data) => {
-//     console.log("model - create users");
-//     let { id, username, email, password, address } = data;
-//     return new Promise((resolve, reject) => {
-//         Pool.query(
-//             `INSERT INTO users (id,username,email,password,address,created_at ) VALUES('${id}', '${username}', '${email}', '${password}','${address}', NOW() )`,
-//             (err, res) => {
-//                 if (!err) {
-//                     return resolve(res);
-//                 } else {
-//                     console.log(`error db -`, err);
-//                     reject(err);
-//                 }
-//             }
-//         );
-//     });
-// };
-
 const updateUsersModel = async (data) => {
     console.log(`model - update user`);
-    let { id, username, email, password, address } = data;
+    let { id, username, email, password, address, photo_profile } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `UPDATE users SET updated_at=NOW(), username='${username}',email='${email}', password='${password}', address='${address}' WHERE id='${id}'`,
+            `UPDATE users SET updated_at=NOW(), username='${username}',email='${email}', password='${password}', address='${address}', photo_profile='${photo_profile}'  WHERE id='${id}'`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);

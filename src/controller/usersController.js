@@ -12,6 +12,7 @@ const {
     deleteUserModel,
     loginUserModel,
 } = require("../model/usersModel");
+const cloudinary = require("../config/photo");
 
 const UsersController = {
     getUsers: async (req, res, next) => {
@@ -137,7 +138,8 @@ const UsersController = {
     },
     registerUsers: async (req, res, next) => {
         try {
-            let { username, email, password, address } = req.body;
+            let { username, email, password, address, photo_profile } =
+                req.body;
             let hashedPassword = await bcrypt.hash(password, 10);
             if (
                 !username ||
@@ -151,12 +153,43 @@ const UsersController = {
             ) {
                 return res.json({ code: 404, message: "input invalid" });
             }
+
+            console.log("photo profile");
+            console.log(req.file);
+            if (!req.file) {
+                return res.json({
+                    code: 404,
+                    message: "photo required",
+                });
+            }
+
+            if (!req.isFileValid) {
+                return res.json({
+                    code: 404,
+                    message: req.isFileValidMessage,
+                });
+            }
+
+            const imageUpload = await cloudinary.uploader.upload(
+                req.file.path,
+                {
+                    folder: "photo profile",
+                }
+            );
+            console.log("cloudinary");
+            console.log(imageUpload);
+
+            if (!imageUpload) {
+                return res.json({ code: 404, message: "Upload photo failed" });
+            }
+
             let data = {
                 id: uuidv4(),
                 username,
                 email,
                 password: hashedPassword,
                 address,
+                photo_profile: imageUpload.secure_url,
             };
             let result = await registerUsersModel(data);
             if (result.rowCount === 1) {
@@ -222,44 +255,7 @@ const UsersController = {
                 .json({ message: `failed login user in controller` });
         }
     },
-    // createUsers: async (req, res, next) => {
-    //     try {
-    //         let { username, email, password, address } = req.body;
-    //         if (
-    //             !username ||
-    //             username === "" ||
-    //             !email ||
-    //             email === "" ||
-    //             !password ||
-    //             password === "" ||
-    //             !address ||
-    //             address === ""
-    //         ) {
-    //             return res.json({ code: 404, message: "input invalid" });
-    //         }
-    //         let data = {
-    //             id: uuidv4(),
-    //             username,
-    //             email,
-    //             password,
-    //             address,
-    //         };
-    //         let result = await createUsersModel(data);
-    //         if (result.rowCount === 1) {
-    //             return res
-    //                 .status(201)
-    //                 .json({ code: 201, message: "success input data" });
-    //         }
-    //         return res
-    //             .status(401)
-    //             .json({ code: 401, message: `failed input data` });
-    //     } catch (err) {
-    //         console.log(err);
-    //         return res
-    //             .status(404)
-    //             .json({ message: `failed create user in controller` });
-    //     }
-    // },
+
     updateUsers: async (req, res, next) => {
         try {
             // check param & body
@@ -285,11 +281,48 @@ const UsersController = {
                 password: password || newUsers.password,
                 address: address || newUsers.address,
             };
-            let result = await updateUsersModel(data);
-            if (result.rowCount === 1) {
-                return res
-                    .status(201)
-                    .json({ code: 201, message: "success update data" });
+
+            console.log("photo profile");
+            console.log(req.file);
+            if (!req.file) {
+                // update without photo
+                data.photo_profile = newUsers.photo_profile;
+                let result = await updateUsersModel(data);
+                if (result.rowCount === 1) {
+                    return res
+                        .status(201)
+                        .json({ code: 201, message: "success update data" });
+                }
+            } else if (req.file) {
+                // update with photo
+                if (!req.isFileValid) {
+                    return res.json({
+                        code: 404,
+                        message: req.isFileValidMessage,
+                    });
+                }
+                const imageUpload = await cloudinary.uploader.upload(
+                    req.file.path,
+                    {
+                        folder: "photo profile",
+                    }
+                );
+                console.log("cloudinary");
+                console.log(imageUpload);
+
+                if (!imageUpload) {
+                    return res.json({
+                        code: 404,
+                        message: "Upload photo failed",
+                    });
+                }
+                data.photo_profile = imageUpload.secure_url;
+                let result = await updateUsersModel(data);
+                if (result.rowCount === 1) {
+                    return res
+                        .status(201)
+                        .json({ code: 201, message: "success update data" });
+                }
             }
             return res
                 .status(401)
