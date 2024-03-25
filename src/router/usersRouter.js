@@ -13,6 +13,7 @@ router.post(
     UsersController.registerUsers
 );
 router.post("/login", UsersController.loginUsers);
+router.get("/activated/:id/:otp", UsersController.verification);
 router.put("/:id", upload.single("photo_profile"), UsersController.updateUsers);
 router.delete("/:id", UsersController.deleteUsers);
 module.exports = router;

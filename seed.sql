@@ -74,6 +74,8 @@ DELETE FROM recipe WHERE users_id='d40e83d5-988f-4100-8af9-e0cd0eb3d991'
 
 INSERT INTO users (id, username, email, password, created_at, address) VALUES('1','user test','test@gmail.com','123123', NOW(),'jalan jalan')
 
-SELECT * FROM recipe
+SELECT * FROM users
 
 
+ALTER TABLE users ADD COLUMN is_verif BOOLEAN DEFAULT false;
+ALTER TABLE users ADD COLUMN otp VARCHAR

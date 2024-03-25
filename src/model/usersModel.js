@@ -67,10 +67,27 @@ const getUsersByIdModel = async (id) => {
 
 const registerUsersModel = async (data) => {
     console.log(`model - register model users`);
-    let { id, username, email, password, address, photo_profile } = data;
+    let { id, username, email, password, address, photo_profile, otp } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id, username, email, password, address, created_at, photo_profile) VALUES('${id}','${username}','${email}','${password}','${address}',NOW(),'${photo_profile}')`,
+            `INSERT INTO users (id, username, email, password, address, created_at, photo_profile, otp) VALUES('${id}','${username}','${email}','${password}','${address}',NOW(),'${photo_profile}', ${otp})`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
+            }
+        );
+    });
+};
+
+const activatedUsers = async (id) => {
+    console.log(`model - activated users`);
+    return new Promise((resolve, reject) => {
+        Pool.query(
+            `UPDATE users SET is_verif=true WHERE id='${id}'`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -138,6 +155,7 @@ module.exports = {
     getUsersDetailModel,
     getUsersDetaiCountlModel,
     registerUsersModel,
+    activatedUsers,
     loginUserModel,
     updateUsersModel,
     deleteUserModel,

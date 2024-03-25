@@ -11,8 +11,10 @@ const {
     updateUsersModel,
     deleteUserModel,
     loginUserModel,
+    activatedUsers,
 } = require("../model/usersModel");
 const cloudinary = require("../config/photo");
+const { sendEmailActivated } = require("../helpers/email");
 
 const UsersController = {
     getUsers: async (req, res, next) => {
@@ -183,19 +185,36 @@ const UsersController = {
                 return res.json({ code: 404, message: "Upload photo failed" });
             }
 
+            let id = uuidv4();
+            let otp = uuidv4();
             let data = {
-                id: uuidv4(),
+                id,
                 username,
                 email,
                 password: hashedPassword,
                 address,
                 photo_profile: imageUpload.secure_url,
+                otp,
             };
+
+            let url = `http://localhost:3000/users/activated/${id}/${otp}`;
+
+            let sendOTP = await sendEmailActivated(email, url, username);
+
+            if (!sendOTP) {
+                return res.status(401).json({
+                    code: 401,
+                    message: "register failed when send email",
+                });
+            }
+
             let result = await registerUsersModel(data);
             if (result.rowCount === 1) {
-                return res
-                    .status(201)
-                    .json({ code: 201, message: "success input data" });
+                return res.status(201).json({
+                    code: 201,
+                    message:
+                        "register success please check your email for activated account",
+                });
             }
             return res
                 .status(401)
@@ -211,13 +230,21 @@ const UsersController = {
         try {
             let { email, password } = req.body;
             if (email === "" || email !== email) {
-                return res.status(404).json({ message: "email is empty" });
+                return res.status(404).json({ message: "email is required" });
             }
             let userData = await loginUserModel(email);
             let result = userData.rows;
 
             if (!result.length) {
                 return res.status(404).json({ message: `user not found` });
+            }
+
+            if (userData && userData.is_verif === false) {
+                return res.status(401).json({
+                    status: 401,
+                    message:
+                        "email not verified, please check your email to activated",
+                });
             }
 
             const userDataFromDB = result[0];
@@ -254,6 +281,36 @@ const UsersController = {
                 .status(404)
                 .json({ message: `failed login user in controller` });
         }
+    },
+
+    verification: async (req, res, next) => {
+        let { id, otp } = req.params;
+
+        let user = await getUsersByIdModel(id);
+        if (user.rowCount === 0) {
+            return res
+                .status(404)
+                .json({ status: 404, message: "email not register" });
+        }
+        let userData = user.rows[0];
+
+        if (otp !== userData.otp) {
+            return res
+                .status(404)
+                .json({ status: 404, message: "otp invalid" });
+        }
+
+        let activated = await activatedUsers(id);
+
+        if (!activated) {
+            return res
+                .status(404)
+                .json({ status: 404, message: "account failed verifivation" });
+        }
+
+        return res
+            .status(201)
+            .json({ status: 201, message: "account success verification" });
     },
 
     updateUsers: async (req, res, next) => {
