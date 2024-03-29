@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { authentification } = require("../middleware/auth");
 const {
     getUsersModel,
     getUsersByIdModel,

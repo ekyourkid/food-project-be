@@ -59,7 +59,7 @@ CREATE TABLE category(
     update_at TIMESTAMP WITH TIME ZONE
 )
 
-SELECT * FROM users
+SELECT * FROM recipe
 
 ALTER TABLE recipe
 ADD COLUMN users_id VARCHAR
