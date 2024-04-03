@@ -17,7 +17,7 @@ const getCategoryModel = async () => {
 const getKategoriByIdModel = async (id) => {
     console.log("model - get id kategori");
     return new Promise((resolve, reject) => {
-        Pool.query(`SELECT * FROM kategori WHERE id='${id}'`, (err, res) => {
+        Pool.query(`SELECT * FROM category WHERE id='${id}'`, (err, res) => {
             if (!err) {
                 return resolve(res);
             } else {
@@ -33,7 +33,7 @@ const getKategoriDetailModel = async (data) => {
     let { searchBy, search, sortBy, sort, limit, offset } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `SELECT * FROM kategori WHERE ${searchBy} ILIKE '%${search}%' ORDER BY ${sortBy} ${sort} LIMIT ${limit} OFFSET ${offset}`,
+            `SELECT * FROM category WHERE ${searchBy} ILIKE '%${search}%' ORDER BY ${sortBy} ${sort} LIMIT ${limit} OFFSET ${offset}`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -51,7 +51,7 @@ const getKategoriDetaiCountlModel = async (data) => {
     let { searchBy, search } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `SELECT * FROM kategori WHERE ${searchBy} ILIKE '%${search}%'
+            `SELECT * FROM category WHERE ${searchBy} ILIKE '%${search}%'
         `,
             (err, res) => {
                 if (!err) {
@@ -88,7 +88,7 @@ const updateKategoriModel = async (data) => {
     let { id, name } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `UPDATE kategori SET updated_at=NOW(), name='${name}' WHERE id='${id}'`,
+            `UPDATE category SET updated_at=NOW(), name='${name}' WHERE id='${id}'`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -104,7 +104,7 @@ const updateKategoriModel = async (data) => {
 const deleteKategoriModel = async (id) => {
     console.log(`model - delete id kategori`);
     return new Promise((resolve, reject) => {
-        Pool.query(`DELETE FROM kategori WHERE id='${id}'`, (err, res) => {
+        Pool.query(`DELETE FROM category WHERE id='${id}'`, (err, res) => {
             if (!err) {
                 return resolve(res);
             } else {
@@ -116,5 +116,10 @@ const deleteKategoriModel = async (id) => {
 };
 module.exports = {
     getCategoryModel,
+    getKategoriDetaiCountlModel,
+    getKategoriDetailModel,
     createCategoryModel,
+    getKategoriByIdModel,
+    updateKategoriModel,
+    deleteKategoriModel,
 };

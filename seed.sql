@@ -49,7 +49,7 @@ SET TIMEZONE='Asia/Jakarta'
 
 
 
-SELECT * FROM users WHERE first_name ILIKE '%eky%' ORDER BY updated_at DESC LIMIT 3 OFFSET 0;
+SELECT * FROM users WHERE first_name ILIKE '%eky%' ORDER BY created_at DESC LIMIT 3 OFFSET 0;
 SELECT COUNT(*) FROM users WHERE first_name ILIKE '%%';
 
 CREATE TABLE category(
@@ -79,3 +79,5 @@ SELECT * FROM users
 
 ALTER TABLE users ADD COLUMN is_verif BOOLEAN DEFAULT false;
 ALTER TABLE users ADD COLUMN otp VARCHAR
+
+SELECT * FROM recipe WHERE id='ef04104d-8960-4e1f-b686-573c0f6ab080'

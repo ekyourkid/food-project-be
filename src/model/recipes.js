@@ -34,14 +34,17 @@ const getRecipeDetailCountModel = async (data) => {
 };
 const getRecipeModel = async () => {
     return new Promise((resolve, reject) =>
-        Pool.query(`SELECT * FROM recipe`, (err, res) => {
-            if (!err) {
-                return resolve(res);
-            } else {
-                console.log(`error db -`, err);
-                reject(err);
+        Pool.query(
+            `SELECT * FROM recipe ORDER BY created_at DESC`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
             }
-        })
+        )
     );
 };
 const getRecipeByAuthorModel = async (id) => {

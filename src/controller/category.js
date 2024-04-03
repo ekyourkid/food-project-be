@@ -1,4 +1,12 @@
-const { getCategoryModel, createCategoryModel } = require("../model/category");
+const {
+    getCategoryModel,
+    getKategoriDetaiCountlModel,
+    getKategoriDetailModel,
+    createCategoryModel,
+    getKategoriByIdModel,
+    updateKategoriModel,
+    deleteKategoriModel,
+} = require("../model/category");
 
 const CategoryController = {
     getCategory: async (req, res, next) => {

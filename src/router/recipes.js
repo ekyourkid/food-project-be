@@ -6,7 +6,7 @@ const upload = require("../middleware/photo");
 
 router.get("/", RecipesController.getRecipe);
 router.get("/detail", RecipesController.getRecipeDetail);
-router.get("/:id", RecipesController.getRecipeByAuthor);
+// router.get("/:id", RecipesController.getRecipeByAuthor);
 router.get("/:id", RecipesController.getRecipeById);
 router.post(
     "/",
