@@ -81,3 +81,5 @@ ALTER TABLE users ADD COLUMN is_verif BOOLEAN DEFAULT false;
 ALTER TABLE users ADD COLUMN otp VARCHAR
 
 SELECT * FROM recipe WHERE id='ef04104d-8960-4e1f-b686-573c0f6ab080'
+
+SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id= '3e175a26-75ad-48c3-bf9d-44bfa3bda07e'

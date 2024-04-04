@@ -10,6 +10,7 @@ const userRouter = require("./src/router/index");
 
 const corsOption = {
     origin: "*",
+    credential: true,
     optionSuccessStatus: 200,
 };
 app.use(bodyParser.urlencoded({ extended: false }));
