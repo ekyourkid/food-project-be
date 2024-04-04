@@ -64,13 +64,47 @@ const getUsersByIdModel = async (id) => {
         });
     });
 };
+const registUsers = async (data) => {
+    console.log(`model - register model users`);
+    let { id, username, email, password } = data;
+    return new Promise((resolve, reject) => {
+        Pool.query(
+            `INSERT INTO users (id, username, email, password, created_at) VALUES('${id}','${username}','${email}','${password}',NOW())`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log(`error db -`, err);
+                    reject(err);
+                }
+            }
+        );
+    });
+};
+
+const getUsersByEmail = async (email) => {
+    console.log("model - getUsersByEmail");
+    return new Promise((resolve, reject) =>
+        Pool.query(
+            `SELECT * FROM users WHERE email = '${email}'`,
+            (err, res) => {
+                if (!err) {
+                    return resolve(res);
+                } else {
+                    console.log("error db -", err);
+                    reject(err);
+                }
+            }
+        )
+    );
+};
 
 const registerUsersModel = async (data) => {
     console.log(`model - register model users`);
-    let { id, username, email, password, address, photo_profile, otp } = data;
+    let { id, username, email, password, address, photo_profile } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id, username, email, password, address, created_at, photo_profile, otp) VALUES('${id}','${username}','${email}','${password}','${address}',NOW(),'${photo_profile}', ${otp})`,
+            `INSERT INTO users (id, username, email, password, address, created_at, photo_profile) VALUES('${id}','${username}','${email}','${password}','${address}',NOW(),'${photo_profile}')`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -153,6 +187,8 @@ module.exports = {
     getUsersModel,
     getUsersByIdModel,
     getUsersDetailModel,
+    registUsers,
+    getUsersByEmail,
     getUsersDetaiCountlModel,
     registerUsersModel,
     activatedUsers,

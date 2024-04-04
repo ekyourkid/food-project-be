@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const {
     getUsersModel,
     getUsersByIdModel,
+    registUsers,
+    getUsersByEmail,
     getUsersDetailModel,
     getUsersDetaiCountlModel,
     registerUsersModel,
@@ -185,7 +187,6 @@ const UsersController = {
             }
 
             let id = uuidv4();
-            let otp = uuidv4();
             let data = {
                 id,
                 username,
@@ -193,19 +194,7 @@ const UsersController = {
                 password: hashedPassword,
                 address,
                 photo_profile: imageUpload.secure_url,
-                otp,
             };
-
-            let url = `http://localhost:3000/users/activated/${id}/${otp}`;
-
-            let sendOTP = await sendEmailActivated(email, url, username);
-
-            if (!sendOTP) {
-                return res.status(401).json({
-                    code: 401,
-                    message: "register failed when send email",
-                });
-            }
 
             let result = await registerUsersModel(data);
             if (result.rowCount === 1) {
@@ -213,6 +202,56 @@ const UsersController = {
                     code: 201,
                     message:
                         "register success please check your email for activated account",
+                });
+            }
+            return res
+                .status(401)
+                .json({ code: 401, message: `failed input data` });
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(404)
+                .json({ message: `failed regist user in controller` });
+        }
+    },
+    registUsers: async (req, res, next) => {
+        try {
+            let { username, email, password } = req.body;
+            if (
+                !username ||
+                username === "" ||
+                !email ||
+                email === "" ||
+                !password ||
+                password === ""
+            ) {
+                return res.status(401).json({
+                    code: 401,
+                    message: "Please fill in all required fields",
+                });
+            }
+
+            let user = await getUsersByEmail(email);
+
+            if (user.rowCount === 1) {
+                return res.status(401).json({
+                    status: 401,
+                    messages: "Email is already registered, please login",
+                });
+            }
+            password = await bcrypt.hash(password, 10);
+            let data = {
+                id: uuidv4(),
+                username,
+                email,
+                password,
+            };
+
+            let result = await registUsers(data);
+            if (result.rowCount === 1) {
+                return res.status(201).json({
+                    code: 201,
+                    message: "register success, please login",
                 });
             }
             return res
@@ -270,6 +309,7 @@ const UsersController = {
                     status: 201,
                     message: "login success",
                     access_token: token,
+                    data: userDataFromDB,
                 });
             } else {
                 return res.status(403).json({ message: "Wrong Password" });
