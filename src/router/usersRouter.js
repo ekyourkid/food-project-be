@@ -6,7 +6,7 @@ const upload = require("../middleware/photo");
 
 router.get("/", UsersController.getUsers);
 router.get("/detail", UsersController.getUsersDetail);
-router.get("/:id", authentification, UsersController.getUsersById);
+router.get("/:id", UsersController.getUsersById);
 router.post("/regist", UsersController.registUsers);
 // router.post(
 //     "/register",

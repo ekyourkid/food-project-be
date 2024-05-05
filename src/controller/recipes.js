@@ -134,27 +134,28 @@ const RecipesController = {
     },
     getRecipeByAuthor: async (req, res, next) => {
         try {
-            let { id } = req.params;
-            if (id === "") {
+            let { users_id } = req.params;
+            if (users_id === "") {
                 return res.status(404).json({ message: "params id invalid" });
             }
-            let recipes = await getRecipeByAuthorModel(id);
+            let recipes = await getRecipeByAuthorModel(users_id);
             let result = recipes.rows;
             if (!result.length) {
                 return res
                     .status(404)
                     .json({ message: "recipe not found or id invalid" });
             }
-            console.log(result);
-            return res
-                .status(200)
-                .json({ message: "success getRecipeById", data: result[0] });
+            console.log(result, "ini result");
+            return res.status(200).json({
+                message: "success get recipes by user id",
+                data: result,
+            });
         } catch (err) {
             console.log("getRecipeById error");
             console.log(err);
             return res
-                .status(404)
-                .json({ message: "failed getRecipeById Controller" });
+                .status(405)
+                .json({ message: "failed get recipe by user id Controller" });
         }
     },
     InputRecipe: async (req, res, next) => {

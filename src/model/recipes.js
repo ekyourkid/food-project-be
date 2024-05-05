@@ -47,10 +47,10 @@ const getRecipeModel = async () => {
         )
     );
 };
-const getRecipeByAuthorModel = async (id) => {
+const getRecipeByAuthorModel = async (users_id) => {
     return new Promise((resolve, reject) =>
         Pool.query(
-            `SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}'`,
+            `SELECT recipe.users_id, recipe.id, recipe.title, recipe.ingredient, category.name as category, recipe.photo, users.username FROM recipe JOIN category on recipe.category_id = category.id JOIN users ON recipe.users_id = users.id WHERE recipe.users_id='${users_id}' `,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
@@ -66,7 +66,7 @@ const getRecipeByAuthorModel = async (id) => {
 const getRecipeByIdModel = async (id) => {
     return new Promise((resolve, reject) =>
         Pool.query(
-            `SELECT recipes.id,recipes.title,recipes.ingredient,recipes.photo,recipes.created_at,recipes.updated_at,recipes.category_id,category.name as category,recipes.users_id, users.email as author FROM recipes JOIN category ON recipes.category_id=category_id JOIN users ON recipes.users_id=users.id WHERE recipes.id='${id}'`,
+            `SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}' `,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
