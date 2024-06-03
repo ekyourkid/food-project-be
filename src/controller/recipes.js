@@ -258,10 +258,15 @@ const RecipesController = {
                     .status(404)
                     .json({ message: "recipe not found or id invalid" });
             }
+
             let recipe = resultRecipe[0];
+            console.log(recipe, "recipe");
             if (req.payload.id !== recipe.users_id) {
+                console.log(req.payload.id, "test");
+                console.log(recipe.users_id, "users_id");
                 return res.status(404).json({ message: "recipe is not yours" });
             }
+
             let data = {
                 id,
                 title: title || recipe.title,

@@ -66,7 +66,7 @@ const getRecipeByAuthorModel = async (users_id) => {
 const getRecipeByIdModel = async (id) => {
     return new Promise((resolve, reject) =>
         Pool.query(
-            `SELECT recipe.id,recipe.title,recipe.ingredient,recipe.photo,recipe.created_at,recipe.updated_at,category.name as category, users.email as author FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}' `,
+            `SELECT * FROM recipe JOIN category ON recipe.category_id=category_id JOIN users ON recipe.users_id=users.id WHERE recipe.id='${id}' `,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
