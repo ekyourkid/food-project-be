@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { otpGen } = require("otp-gen-agent");
 const {
     getUsersModel,
     getUsersByIdModel,
@@ -15,7 +16,7 @@ const {
     activatedUsers,
 } = require("../model/usersModel");
 const cloudinary = require("../config/photo");
-const { sendEmailActivated } = require("../helpers/email");
+const { sendEmailActivated, sendEmailOTP } = require("../helpers/email");
 
 const UsersController = {
     getUsers: async (req, res, next) => {
@@ -233,6 +234,7 @@ const UsersController = {
 
             let user = await getUsersByEmail(email);
 
+            // {Check Email}
             if (user.rowCount === 1) {
                 return res.status(401).json({
                     status: 401,
@@ -245,13 +247,26 @@ const UsersController = {
                 username,
                 email,
                 password,
+                otp: otpGen(),
             };
+            let url = `http://localhost:3000/users/activated/${data.id}/${data.otp}`;
+
+            let sendOtp = await sendEmailActivated(email, url, username);
+
+            if (!sendOtp) {
+                return res.status(404).json({
+                    status: 404,
+                    messages: "Register failed when send email",
+                });
+            }
 
             let result = await registUsers(data);
+
             if (result.rowCount === 1) {
                 return res.status(201).json({
                     code: 201,
-                    message: "register success, please login",
+                    message:
+                        "Register success, please check your email for activation",
                 });
             }
             return res
@@ -267,8 +282,10 @@ const UsersController = {
     loginUsers: async (req, res, next) => {
         try {
             let { email, password } = req.body;
-            if (email === "" || email !== email) {
-                return res.status(404).json({ message: "email is required" });
+            if (!email || !password || email == "" || password == "") {
+                return res
+                    .status(404)
+                    .json({ message: "Please fill in all required fields" });
             }
             let userData = await loginUserModel(email);
             let result = userData.rows;
@@ -349,7 +366,7 @@ const UsersController = {
 
         return res
             .status(201)
-            .json({ status: 201, message: "account success verification" });
+            .json({ status: 201, message: "Account Success Verification" });
     },
 
     updateUsers: async (req, res, next) => {

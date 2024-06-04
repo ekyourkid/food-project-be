@@ -22,14 +22,24 @@ async function sendMail(mailOption) {
     }
 }
 
-const sendEmailActivated = async (email_user, url, username) => {
+const sendEmailOTP = async (email, otp, name) => {
     const mailOption = {
         from: process.env.EMAIL_NAME,
-        to: email_user,
+        to: email,
+        subject: `OTP Pijar Food`,
+        text: `Hello ${name}, please use this OTP for reset your password:  ${otp}`,
+    };
+    return await sendMail(mailOption);
+};
+
+const sendEmailActivated = async (email, url, username) => {
+    const mailOption = {
+        from: process.env.EMAIL_NAME,
+        to: email,
         subject: `Hello ${username} Please Verification for Recipe Food App`,
         text: `Hello ${username}, Please Verification for Recipe Food App. This is your activated link ${url}`,
     };
     return await sendMail(mailOption);
 };
 
-module.exports = { sendEmailActivated };
+module.exports = { sendEmailActivated, sendEmailOTP };

@@ -66,10 +66,10 @@ const getUsersByIdModel = async (id) => {
 };
 const registUsers = async (data) => {
     console.log(`model - register model users`);
-    let { id, username, email, password } = data;
+    let { id, username, email, password, otp } = data;
     return new Promise((resolve, reject) => {
         Pool.query(
-            `INSERT INTO users (id, username, email, password, created_at) VALUES('${id}','${username}','${email}','${password}',NOW())`,
+            `INSERT INTO users (id, username, email, password, created_at, otp, is_verif ) VALUES('${id}','${username}','${email}','${password}',NOW(), '${otp}', false)`,
             (err, res) => {
                 if (!err) {
                     return resolve(res);
