@@ -1,9 +1,9 @@
 <br />
 <p align="center">
 
-  <h3 align="center">Pijar Food Rest API</h3>
+<h3 align="center">Pijar Food Rest API</h3>
 
-  </a>
+</a>
 
 ## About The Project
 
